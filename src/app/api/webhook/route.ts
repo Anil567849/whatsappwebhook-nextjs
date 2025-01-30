@@ -4,9 +4,9 @@ const token = process.env.TOKEN;
 const mytoken = process.env.MYTOKEN;//prasath_token
 
 export async function GET(req: NextRequest) {
-    let mode = req.nextUrl.searchParams.get("hub.mode");
-    let challange = req.nextUrl.searchParams.get("hub.challenge");
-    let token = req.nextUrl.searchParams.get("hub.verify_token");
+    const mode = req.nextUrl.searchParams.get("hub.mode");
+    const challange = req.nextUrl.searchParams.get("hub.challenge");
+    const token = req.nextUrl.searchParams.get("hub.verify_token");
 
     if (mode && token) {
 
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
 
-    let body_param = await req.json();
+    const body_param = await req.json();
 
     console.log(JSON.stringify(body_param, null, 2));
 
@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
             body_param.entry[0].changes[0].value.messages &&
             body_param.entry[0].changes[0].value.messages[0]
         ) {
-            let phon_no_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
-            let from = body_param.entry[0].changes[0].value.messages[0].from;
-            let msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
+            const phon_no_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
+            const from = body_param.entry[0].changes[0].value.messages[0].from;
+            const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
 
             console.log("phone number " + phon_no_id);
             console.log("from " + from);
