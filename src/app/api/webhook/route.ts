@@ -8,14 +8,15 @@ export async function GET(req: NextRequest) {
     const challange = req.nextUrl.searchParams.get("hub.challenge");
     const token = req.nextUrl.searchParams.get("hub.verify_token");
 
+    console.log(mode, challange, token);
+
     if (mode && token) {
 
         if (mode === "subscribe" && token === mytoken) {
             return NextResponse.json(challange, { status: 200 });
         }
-        return NextResponse.json(null, { status: 403 });
-
     }
+    return NextResponse.json(null, { status: 403 });
 }
 
 export async function POST(req: NextRequest) {
