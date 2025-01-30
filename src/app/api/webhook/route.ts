@@ -13,10 +13,10 @@ export async function GET(req: NextRequest) {
     if (mode && token) {
 
         if (mode === "subscribe" && token === mytoken) {
-            return NextResponse.json(challange, { status: 200 });
+            return new NextResponse(challange, { status: 200 });
         }
     }
-    return NextResponse.json(null, { status: 403 });
+    return new NextResponse(null, { status: 403 });
 }
 
 export async function POST(req: NextRequest) {
@@ -53,9 +53,9 @@ export async function POST(req: NextRequest) {
                 })
             });
 
-            return NextResponse.json(null, { status: 200 });
+            return new NextResponse(null, { status: 200 });
         }
     }
-    return NextResponse.json(null, { status: 404 });
+    return new NextResponse(null, { status: 403 });
 }
 
