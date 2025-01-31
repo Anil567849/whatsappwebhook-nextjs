@@ -50,45 +50,44 @@ This POST function is used to receive messages from the customer. When a custome
 We can reply back to customer messages by sending a POST request to the Facebook API with the customer phone number and message data. URL: https://graph.facebook.com/v13.0/${phon_no_id}/messages?access_token=${token}
 */
 export async function POST(req: NextRequest) {
-
     console.log('POST Request Received');
 
     try {
-
         const body_param = await req.json();
+        console.log('body_param:', JSON.stringify(body_param, null, 2));
 
-        console.log('body_param:', body_param);
-
-        if (body_param && body_param.object) {
-            if (body_param.entry &&
-                body_param.entry[0].changes &&
-                body_param.entry[0].changes[0].value.messages &&
-                body_param.entry[0].changes[0].value.messages[0]
-            ) {
-
-                // Customer Data [Got Message from Customer]
-                const phon_no_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
-                const from = body_param.entry[0].changes[0].value.messages[0].from;
-                const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
-
-                console.log('msg received from:', from, 'msg:', msg_body, 'phone:', phon_no_id);
-
-                // Save Customer Data in Database
-                // await WhatsAppHelper.saveCustomerData(phon_no_id, from, msg_body);
-
-                await WhatsAppHelper.sendMsgToUser(phon_no_id, from, msg_body);
-
-                console.log('msg sent to:', from);
-
-                return new NextResponse(null, { status: 200 });
-            }
-        }else{
-            console.log("No Data Found");
+        if (!body_param || !body_param.object) {
+            console.log("Invalid request body");
+            return new NextResponse("Invalid request body", { status: 400 });
         }
 
+        const entry = body_param.entry?.[0];
+        const change = entry?.changes?.[0];
+        const value = change?.value;
+        const messages = value?.messages?.[0];
+
+        if (messages && value.metadata) {
+            const phon_no_id = value.metadata.phone_number_id;
+            const from = messages.from;
+            const msg_body = messages.text?.body || "";
+
+            console.log('msg received from:', from, 'msg:', msg_body, 'phone:', phon_no_id);
+
+            // Ensure helper function calls are awaited correctly
+            // await WhatsAppHelper.saveCustomerData(phon_no_id, from, msg_body);
+            await WhatsAppHelper.sendMsgToUser(phon_no_id, from, msg_body);
+
+            console.log('msg sent to:', from);
+            return new NextResponse(null, { status: 200 });
+        } else {
+            console.log("No valid message data found.");
+        }
     } catch (error) {
-        console.log(error);
+        console.error("Error processing request:", error);
+        return new NextResponse("Internal Server Error", { status: 500 });
     }
-    return new NextResponse(null, { status: 403 });
+
+    return new NextResponse("Forbidden", { status: 403 });
 }
+
 
