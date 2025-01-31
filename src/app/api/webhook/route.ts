@@ -66,10 +66,14 @@ export async function POST(req: NextRequest) {
                 const from = body_param.entry[0].changes[0].value.messages[0].from;
                 const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
 
+                console.log('msg received from:', from, 'msg:', msg_body, 'phone:', phon_no_id);
+
                 // Save Customer Data in Database
                 // await WhatsAppHelper.saveCustomerData(phon_no_id, from, msg_body);
 
                 await WhatsAppHelper.sendMsgToUser(phon_no_id, from, msg_body);
+
+                console.log('msg sent to:', from);
 
                 return new NextResponse(null, { status: 200 });
             }
