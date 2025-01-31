@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 const token = process.env.TOKEN;
 const mytoken = process.env.MYTOKEN;
@@ -50,9 +50,14 @@ This POST function is used to receive messages from the customer. When a custome
 We can reply back to customer messages by sending a POST request to the Facebook API with the customer phone number and message data. URL: https://graph.facebook.com/v13.0/${phon_no_id}/messages?access_token=${token}
 */
 export async function POST(req: NextRequest) {
+
+    console.log('POST Request Received');
+
     try {
 
         const body_param = await req.json();
+
+        console.log('body_param:', body_param);
 
         if (body_param && body_param.object) {
             if (body_param.entry &&
