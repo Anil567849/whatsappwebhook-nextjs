@@ -72,7 +72,6 @@ export async function POST(req: NextRequest) {
             // await WhatsAppHelper.saveCustomerData(phon_no_id, from, msg_body);
             await WhatsAppHelper.sendMsgToUser(phon_no_id, from, msg_body);
 
-            console.log('msg sent to:', from);
             return new NextResponse(null, { status: 200 });
         }
     } catch (error) {
