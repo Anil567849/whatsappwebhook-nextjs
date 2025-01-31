@@ -1,60 +1,84 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const token = process.env.TOKEN;
-const mytoken = process.env.MYTOKEN;//prasath_token
+const mytoken = process.env.MYTOKEN;
 
+class WhatsAppHelper {
+    static async sendMsgToUser(phon_no_id: string, from: string, msg_body: string) {
+        await fetch(`https://graph.facebook.com/v13.0/${phon_no_id}/messages?access_token=${token}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                messaging_product: "whatsapp",
+                to: from,
+                text: {
+                    body: `Hi.. I'm Anil, your message is ${msg_body}`
+                }
+            })
+        });
+    }
+
+    // static async saveCustomerData(phon_no_id: string, from: string, msg_body: string) {
+
+    // }
+}
+
+/*
+This GET function is used to verify the webhook URL. When we create a webhook, Facebook sends a GET request to the webhook URL with some query parameters. We need to verify the webhook URL by checking the query parameters and sending a response with the challenge parameter.
+*/
 export async function GET(req: NextRequest) {
     const mode = req.nextUrl.searchParams.get("hub.mode");
     const challange = req.nextUrl.searchParams.get("hub.challenge");
-    const token = req.nextUrl.searchParams.get("hub.verify_token");
+    const verify_token = req.nextUrl.searchParams.get("hub.verify_token");
 
-    console.log(mode, challange, token);
+    // console.log(mode, challange, verify_token);
 
-    if (mode && token) {
+    if (mode && verify_token) {
 
-        if (mode === "subscribe" && token === mytoken) {
+        if (mode === "subscribe" && verify_token === mytoken) {
             return new NextResponse(challange, { status: 200 });
         }
     }
     return new NextResponse(null, { status: 403 });
 }
 
+/* 
+This POST function is used to receive messages from the customer. When a customer sends a message, Facebook sends a POST request to the webhook URL with the message data. We need to extract the message data from the request body and send a response with status 200.
+
+We can reply back to customer messages by sending a POST request to the Facebook API with the customer phone number and message data. URL: https://graph.facebook.com/v13.0/${phon_no_id}/messages?access_token=${token}
+*/
 export async function POST(req: NextRequest) {
+    try {
 
-    const body_param = await req.json();
+        const body_param = await req.json();
 
-    console.log(JSON.stringify(body_param, null, 2));
+        if (body_param && body_param.object) {
+            if (body_param.entry &&
+                body_param.entry[0].changes &&
+                body_param.entry[0].changes[0].value.messages &&
+                body_param.entry[0].changes[0].value.messages[0]
+            ) {
 
-    if (body_param && body_param.object) {
-        if (body_param.entry &&
-            body_param.entry[0].changes &&
-            body_param.entry[0].changes[0].value.messages &&
-            body_param.entry[0].changes[0].value.messages[0]
-        ) {
-            const phon_no_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
-            const from = body_param.entry[0].changes[0].value.messages[0].from;
-            const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
+                // Customer Data [Got Message from Customer]
+                const phon_no_id = body_param.entry[0].changes[0].value.metadata.phone_number_id;
+                const from = body_param.entry[0].changes[0].value.messages[0].from;
+                const msg_body = body_param.entry[0].changes[0].value.messages[0].text.body;
 
-            console.log("phone number " + phon_no_id);
-            console.log("from " + from);
-            console.log("boady param " + msg_body);
+                // Save Customer Data in Database
+                // await WhatsAppHelper.saveCustomerData(phon_no_id, from, msg_body);
 
-            await fetch(`https://graph.facebook.com/v13.0/${phon_no_id}/messages?access_token=${token}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    messaging_product: "whatsapp",
-                    to: from,
-                    text: {
-                        body: `Hi.. I'm Anil, your message is ${msg_body}`
-                    }
-                })
-            });
+                await WhatsAppHelper.sendMsgToUser(phon_no_id, from, msg_body);
 
-            return new NextResponse(null, { status: 200 });
+                return new NextResponse(null, { status: 200 });
+            }
+        }else{
+            console.log("No Data Found");
         }
+
+    } catch (error) {
+        console.log(error);
     }
     return new NextResponse(null, { status: 403 });
 }
