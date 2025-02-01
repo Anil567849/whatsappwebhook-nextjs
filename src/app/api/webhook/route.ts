@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
     try {
         const body_param = await req.json();
 
+        console.log(JSON.stringify(body_param, null, 2));
+
         if (!body_param || !body_param.object) {
             return new NextResponse("Invalid request body", { status: 400 });
         }
