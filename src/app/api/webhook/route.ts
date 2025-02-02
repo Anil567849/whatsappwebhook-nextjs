@@ -55,6 +55,48 @@ export async function POST(req: NextRequest) {
         const body_param = await req.json();
 
         console.log(JSON.stringify(body_param, null, 2));
+        
+/*
+    example of when message is received from customer body_params: {
+    "object": "whatsapp_business_account",
+    "entry": [
+        {
+        "id": "530068663527769",
+        "changes": [
+            {
+            "value": {
+                "messaging_product": "whatsapp",
+                "metadata": {
+                "display_phone_number": "15551862024",
+                "phone_number_id": "528195583715572"
+                },
+                "contacts": [
+                {
+                    "profile": {
+                    "name": "Anil Kumar"
+                    },
+                    "wa_id": "917018348115"
+                }
+                ],
+                "messages": [
+                {
+                    "from": "917018348115",
+                    "id": "wamid.HBgMOTE3MDE4MzQ4MTE1FQIAEhggQzZDMzVGRTc4MzNGNjkwN0IwNjU5OTdBQzYxQjNCRDEA",
+                    "timestamp": "1738428923",
+                    "text": {
+                    "body": "Hi"
+                    },
+                    "type": "text"
+                }
+                ]
+            },
+            "field": "messages"
+            }
+        ]
+        }
+    ]
+    }
+*/
 
         if (!body_param || !body_param.object) {
             return new NextResponse("Invalid request body", { status: 400 });
@@ -83,5 +125,3 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse("Forbidden", { status: 403 });
 }
-
-
